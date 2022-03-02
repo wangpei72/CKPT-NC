@@ -90,7 +90,7 @@ def multi_testing_criteria(idx_in_range20, id_list_cnt, datasets, model_name, sa
     # m = np.load('../data/adult/data-x.npy')
     # n = np.load('../data/adult/data-y.npy')
 
-    tuple_res = get_single_sample_from_instances_set(idx_in_range20=idx_in_range20, id_list_cnt=id_list_cnt)
+    tuple_res = get_single_sample_from_instances_set(idx_in_range_20=idx_in_range20, id_list_cnt=id_list_cnt)
     samples = tuple_res[2]
     X_train_boundary = tuple_res[0]
     store_path = "../multi_testing_criteria/dnn5/adult/"
@@ -188,9 +188,9 @@ def main(argv=None):
     idx_in_range_20 = 0
     id_list_cnt = 0
     while id_list_cnt < 1:
-        nc_to_save = []
+        multi_nc_to_save = []
         while idx_in_range_20 < 20:
-            nc_to_save.append(multi_testing_criteria(idx_in_range_20, id_list_cnt,
+            multi_nc_to_save.append(multi_testing_criteria(idx_in_range_20, id_list_cnt,
                            datasets = FLAGS.datasets,
                            model_name=FLAGS.model,
                            samples_path=FLAGS.samples,
@@ -198,8 +198,8 @@ def main(argv=None):
                            k_n = FLAGS.k_n,
                            k_l = FLAGS.k_l))
             idx_in_range_20 += 1
-        nc_to_save = np.array(nc_to_save, dtype=np.float64)
-        np.save('/multi_testing_criteria/dnn5/adult/' + '20-tests-0' + str(id_list_cnt + 1) + '.npy', nc_to_save)
+        multi_nc_to_save = np.array(multi_nc_to_save, dtype=np.float64)
+        np.save('/multi_testing_criteria/dnn5/adult/' + '20-tests-0' + str(id_list_cnt + 1) + '.npy', multi_nc_to_save)
         id_list_cnt += 1
 
 

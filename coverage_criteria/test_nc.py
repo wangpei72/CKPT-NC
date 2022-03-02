@@ -11,10 +11,9 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.platform import flags
 
+from coverage_criteria import wrt_xls
 
 
-sys.path.append("../")
-import sys
 
 from load_model.network import *
 from load_model.layer import *
@@ -22,7 +21,7 @@ from load_model.layer import *
 sys.path.append("../")
 
 
-from coverage_criteria.utils import init_coverage_tables, neuron_covered, update_coverage
+from coverage_criteria.utils import init_coverage_tables, neuron_covered, update_coverage, bank_get_single_sample_from_instances_set
 
 
 
@@ -84,26 +83,18 @@ def model_load(datasets):
     return sess, preds, x, y, model, feed_dict
 
 
-def neuron_coverage(datasets, model_name, de=False, attack='fgsm'):
+def neuron_coverage(idx_in_range_20, id_list_cnt,datasets, model_name, de=False, attack='fgsm'):
     """
     :param datasets
     :param model
     :param samples_path
     :return:
     """
-    # Object used to keep track of (and return) key accuracies
-    m = np.load('../data/bank/data-bank-additional-X1.npy')
-    n = np.load('../data/bank/data-bank-additional-Y1.npy')
-    p = int(m.shape[0] * 0.8)
-    X_train = m[:p]
-    Y_train = n[:p]
-    X_test = m[p:]
-    Y_test = n[p:]
-
-    samples = X_test
+    tuple_res = bank_get_single_sample_from_instances_set(idx_in_range_20, id_list_cnt)
+    samples = tuple_res[2]
 
     n_batches = 10
-    X_train_boundary = X_train
+    X_train_boundary = tuple_res[0]
     store_path = "../multi_testing_criteria/dnn5/bank-additional/"
 
     for i in range(n_batches):
@@ -121,12 +112,28 @@ def neuron_coverage(datasets, model_name, de=False, attack='fgsm'):
         result = neuron_covered(model_layer_dict)[2]
         print('covered neurons percentage %d neurons %f'
               % (len(model_layer_dict), result))
+        return result
 
 
 def main(argv=None):
-    neuron_coverage(datasets=FLAGS.datasets,
-                    model_name=FLAGS.model,
-                   )
+    idx_in_range_20 = 0
+    id_list_cnt = 0
+    while id_list_cnt < 5:
+        nc_to_save = []
+        idx_in_range_20 = 0
+        while idx_in_range_20 < 20:
+            nc_to_save.append(neuron_coverage(idx_in_range_20, id_list_cnt, datasets=FLAGS.datasets,
+                                              model_name=FLAGS.model,
+                                              ))
+            idx_in_range_20 += 1
+        nc_to_save = np.array(nc_to_save, dtype=np.float64)
+        np.save('../bank-res-nc/20_tests_0' + str(id_list_cnt + 1) + '.npy', nc_to_save)
+        id_list_cnt += 1
+    id_list_cnt = 0
+    while id_list_cnt < 5:
+        wrt_xls.wrt_xls_file('bank_neuron_coverage.xls', 'neuron_coverage', 'neuron coverage',
+                             path_prefix='../bank-res-nc', id_list_cnt=id_list_cnt)
+        id_list_cnt += 1
 
 
 if __name__ == '__main__':

@@ -1,11 +1,29 @@
 import xlwt as wt
 import numpy as np
 import time
+import sys
+sys.path.append("../")
 
 
-def wrt_xls_file(npy_file_path, output_path):
-    array = np.load(npy_file_path, allow_pickle=True)
-
+def wrt_xls_file(output_filename, sheet_name, result_name, path_prefix ='../adult-res-nc', id_list_cnt = 0):
+    id_list = ['01', '02', '03', '04', '05']
+    target_arr = np.load(path_prefix + '/20_tests_' + id_list[id_list_cnt] + '.npy', allow_pickle=True)
+    shape = target_arr.shape
+    idx = 0
+    if(len(shape) == 1):
+        workbook = wt.Workbook()
+        while idx < 5:
+            target_arr = np.load(path_prefix + '/20_tests_' + id_list[idx] + '.npy', allow_pickle=True)
+            print("arr shape is %d" % target_arr.shape)
+            sheet = workbook.add_sheet(sheet_name + id_list[idx])
+            sheet.write(0, 0, 'test id')
+            sheet.write(1, 0, result_name)
+            for i in range(shape[0]):
+                sheet.write(0, i + 1, i + 1)
+                sheet.write(1, i + 1, str(target_arr[i]))
+            idx += 1
+        workbook.save(path_prefix + '/xls_file' + output_filename)
+        print('test res saved as xls file.')
 
 
 if __name__ == "__main__":

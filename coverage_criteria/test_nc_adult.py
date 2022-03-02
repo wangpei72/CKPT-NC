@@ -21,6 +21,7 @@ sys.path.append("../")
 
 from coverage_criteria.utils import init_coverage_tables, neuron_covered, update_coverage, \
     get_single_sample_from_instances_set
+from coverage_criteria import wrt_xls
 
 FLAGS = flags.FLAGS
 
@@ -120,15 +121,20 @@ def neuron_coverage(idx_in_range20,
 def main(argv=None):
     idx_in_range_20 = 0
     id_list_cnt = 0
-    while id_list_cnt < 1:
+    while id_list_cnt < 5:
         nc_to_save = []
+        idx_in_range_20 = 0
         while idx_in_range_20 < 20:
             nc_to_save.append(neuron_coverage(idx_in_range_20, id_list_cnt, datasets=FLAGS.datasets,
                                  model_name=FLAGS.model,
                                  ))
             idx_in_range_20 += 1
         nc_to_save = np.array(nc_to_save, dtype=np.float64)
-        np.save('/coverage-result/dnn5/adult/' + '20-tests-0' + str(id_list_cnt + 1) + '.npy', nc_to_save)
+        np.save('../adult-res-nc/20_tests_0' + str(id_list_cnt + 1) + '.npy', nc_to_save)
+        id_list_cnt += 1
+    id_list_cnt = 0
+    while id_list_cnt < 5:
+        wrt_xls.wrt_xls_file('adult_neuron_coverage.xls', 'neuron_coverage', 'neuron coverage', id_list_cnt=id_list_cnt)
         id_list_cnt += 1
 
 
