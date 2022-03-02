@@ -16,7 +16,7 @@ import math
 sys.path.append("../")
 
 
-from coverage_criteria.utils import neuron_boundary, calculate_layers, update_multi_coverage_neuron, calculate_coverage_layer, init_coverage_metric
+from coverage_criteria.utils import neuron_boundary, calculate_layers, update_multi_coverage_neuron, calculate_coverage_layer, init_coverage_metric, get_single_sample_from_instances_set
 
 from load_model.network import *
 from load_model.layer import *
@@ -77,7 +77,7 @@ def model_load(datasets):
 
     return sess, preds, x, y, model, feed_dict
 
-def multi_testing_criteria(datasets, model_name, samples_path, std_range = 0.0, k_n = 1000, k_l = 2):
+def multi_testing_criteria(idx_in_range20, id_list_cnt, datasets, model_name, samples_path, std_range = 0.0, k_n = 1000, k_l = 2):
     """
     :param datasets
     :param model
@@ -87,17 +87,13 @@ def multi_testing_criteria(datasets, model_name, samples_path, std_range = 0.0, 
     :param k_l
     :return:
     """
-    m = np.load('../data/data-x.npy')
-    n = np.load('../data/data-y.npy')
-    p = int(m.shape[0] * 0.8)
-    X_train = m[:p]
-    Y_train = n[:p]
-    X_test = m[p:]
-    Y_test = n[p:]
-    samples = X_test
-    X_train_boundary = X_train
-    store_path = "../multi_testing_criteria/dnn5/adult/"
+    # m = np.load('../data/adult/data-x.npy')
+    # n = np.load('../data/adult/data-y.npy')
 
+    tuple_res = get_single_sample_from_instances_set(idx_in_range20=idx_in_range20, id_list_cnt=id_list_cnt)
+    samples = tuple_res[2]
+    X_train_boundary = tuple_res[0]
+    store_path = "../multi_testing_criteria/dnn5/adult/"
 
 
     if not os.path.exists(store_path):
@@ -189,12 +185,23 @@ def multi_testing_criteria(datasets, model_name, samples_path, std_range = 0.0, 
     return [KMN, NB, SNA, TKNC, TKNP]
 
 def main(argv=None):
-    multi_testing_criteria(datasets = FLAGS.datasets,
+    idx_in_range_20 = 0
+    id_list_cnt = 0
+    while id_list_cnt < 1:
+        nc_to_save = []
+        while idx_in_range_20 < 20:
+            nc_to_save.append(multi_testing_criteria(idx_in_range_20, id_list_cnt,
+                           datasets = FLAGS.datasets,
                            model_name=FLAGS.model,
                            samples_path=FLAGS.samples,
                            std_range = FLAGS.std_range,
                            k_n = FLAGS.k_n,
-                           k_l = FLAGS.k_l)
+                           k_l = FLAGS.k_l))
+            idx_in_range_20 += 1
+        nc_to_save = np.array(nc_to_save, dtype=np.float64)
+        np.save('/multi_testing_criteria/dnn5/adult/' + '20-tests-0' + str(id_list_cnt + 1) + '.npy', nc_to_save)
+        id_list_cnt += 1
+
 
 if __name__ == '__main__':
     flags.DEFINE_string('datasets', 'adult', 'The target datasets.')

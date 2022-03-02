@@ -87,8 +87,8 @@ def multi_testing_criteria(datasets, model_name, samples_path, std_range = 0.0, 
     :param k_l
     :return:
     """
-    m = np.load('../data/data-bank-additional-X1.npy')
-    n = np.load('../data/data-bank-additional-Y1.npy')
+    m = np.load('../data/bank/data-bank-additional-X1.npy')
+    n = np.load('../data/bank/data-bank-additional-Y1.npy')
     p = int(m.shape[0] * 0.8)
     X_train = m[:p]
     Y_train = n[:p]

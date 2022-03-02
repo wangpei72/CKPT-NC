@@ -11,8 +11,6 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.platform import flags
 
-
-
 sys.path.append("../")
 import sys
 
@@ -21,10 +19,8 @@ from load_model.layer import *
 
 sys.path.append("../")
 
-
-from coverage_criteria.utils import init_coverage_tables, neuron_covered, update_coverage
-
-
+from coverage_criteria.utils import init_coverage_tables, neuron_covered, update_coverage, \
+    get_single_sample_from_instances_set
 
 FLAGS = flags.FLAGS
 
@@ -84,26 +80,23 @@ def model_load(datasets):
     return sess, preds, x, y, model, feed_dict
 
 
-def neuron_coverage(datasets, model_name, de=False, attack='fgsm'):
+def neuron_coverage(idx_in_range20,
+                    id_list_cnt,
+                    datasets, model_name, de=False, attack='fgsm', raw_data_path_prefix='../data/adult/'):
     """
     :param datasets
     :param model
     :param samples_path
     :return:
     """
-    # Object used to keep track of (and return) key accuracies
-    m = np.load('../data/data-x.npy')
-    n = np.load('../data/data-y.npy')
-    p = int(m.shape[0] * 0.8)
-    X_train = m[:p]
-    Y_train = n[:p]
-    X_test = m[p:]
-    Y_test = n[p:]
+    print("idx in range20 is :%d" % idx_in_range20)
+    print("id_list_cnt is :%d" % id_list_cnt)
+    tuple_res = get_single_sample_from_instances_set(idx_in_range20, id_list_cnt, raw_data_path_prefix)
 
-    samples = X_test
+    samples = tuple_res[2]
 
     n_batches = 10
-    X_train_boundary = X_train
+    X_train_boundary = tuple_res[0]
     store_path = "../coverage-result/dnn5/adult/"
 
     for i in range(n_batches):
@@ -121,17 +114,26 @@ def neuron_coverage(datasets, model_name, de=False, attack='fgsm'):
         result = neuron_covered(model_layer_dict)[2]
         print('covered neurons percentage %d neurons %f'
               % (len(model_layer_dict), result))
+        return result
 
 
 def main(argv=None):
-    neuron_coverage(datasets=FLAGS.datasets,
-                    model_name=FLAGS.model,
-                   )
+    idx_in_range_20 = 0
+    id_list_cnt = 0
+    while id_list_cnt < 1:
+        nc_to_save = []
+        while idx_in_range_20 < 20:
+            nc_to_save.append(neuron_coverage(idx_in_range_20, id_list_cnt, datasets=FLAGS.datasets,
+                                 model_name=FLAGS.model,
+                                 ))
+            idx_in_range_20 += 1
+        nc_to_save = np.array(nc_to_save, dtype=np.float64)
+        np.save('/coverage-result/dnn5/adult/' + '20-tests-0' + str(id_list_cnt + 1) + '.npy', nc_to_save)
+        id_list_cnt += 1
 
 
 if __name__ == '__main__':
     flags.DEFINE_string('datasets', 'adult', 'The target datasets.')
     flags.DEFINE_string('model', 'dnn5', 'The name of model')
-
 
     tf.app.run()

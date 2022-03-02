@@ -368,3 +368,30 @@ def update_multi_coverage_neuron(layers_output, k_n, boundary, k_coverage, bound
     del addition
     return k_coverage, boundary_coverage
 
+def get_single_sample_from_instances_set(idx_in_range_20=0, id_list_cnt=0, raw_data_path_prefix='../data/adult/'):
+    """
+    :param idx_in_range_20:一个instance_set文件读取的array中的列索引，代表20次实验取样的sample序号集合数据，取值范围0-19
+    :param id_list_cnt: 5次实验的实验序号，取值范围0-4
+    :param raw_data_path_prefix: 原始数据集路径前缀，默认为adult数据集路径
+    :return: 训练集和用作测试集的4个numpy ndarray X_train, Y_train, X_test, Y_test
+    """
+    # Object used to keep track of (and return) key accuracies
+    m = np.load(raw_data_path_prefix + 'data-x.npy')
+    n = np.load(raw_data_path_prefix + 'data-y.npy')
+    p = int(m.shape[0] * 0.8)
+    X_train = m[:p]
+    Y_train = n[:p]
+    X_list = []
+    Y_list = []
+    # 这个X_test由读取instance-set文件拼凑成 x y，所以func要返回x , y,并且传递id—list-cnt参数
+    id_list = ['01', '02', '03', '04', '05']
+    test_instances_array = np.load(raw_data_path_prefix + 'test_set/test_instances_set' + id_list[id_list_cnt] + '.npy', allow_pickle=True)
+    for idx in test_instances_array[idx_in_range_20]:
+        X_list.append(m[idx])
+        Y_list.append(n[idx])
+    X_test = np.array(X_list, dtype=np.float64)
+    Y_test = np.array(Y_list, dtype=np.float64)
+
+    return X_train, Y_train, X_test, Y_test
+
+
