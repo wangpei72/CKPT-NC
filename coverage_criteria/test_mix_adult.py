@@ -71,7 +71,7 @@ def model_load(datasets):
 
     saver = tf.train.Saver()
 
-    model_path = '../mod/' +datasets+ '/test.model'
+    model_path = '../mod/' +datasets+ '/start-all-over-model/adult/999/test.model'
 
     saver.restore(sess, model_path)
 
@@ -199,7 +199,7 @@ def main(argv=None):
                            k_l = FLAGS.k_l))
             idx_in_range_20 += 1
         multi_nc_to_save = np.array(multi_nc_to_save, dtype=np.float64)
-        np.save('/multi_testing_criteria/dnn5/adult/' + '20-tests-0' + str(id_list_cnt + 1) + '.npy', multi_nc_to_save)
+        np.save('/multi_testing_criteria/dnn5/adult/' + 'rw-20-tests-0' + str(id_list_cnt + 1) + '.npy', multi_nc_to_save)
         id_list_cnt += 1
 
 

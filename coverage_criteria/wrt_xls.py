@@ -7,13 +7,13 @@ sys.path.append("../")
 
 def wrt_xls_file(output_filename, sheet_name, result_name, path_prefix ='../adult-res-nc', id_list_cnt = 0):
     id_list = ['01', '02', '03', '04', '05']
-    target_arr = np.load(path_prefix + '/20_tests_' + id_list[id_list_cnt] + '.npy', allow_pickle=True)
+    target_arr = np.load(path_prefix + '/rw-20_tests_' + id_list[id_list_cnt] + '.npy', allow_pickle=True)
     shape = target_arr.shape
     idx = 0
     if(len(shape) == 1):
         workbook = wt.Workbook()
         while idx < 5:
-            target_arr = np.load(path_prefix + '/20_tests_' + id_list[idx] + '.npy', allow_pickle=True)
+            target_arr = np.load(path_prefix + '/rw-20_tests_' + id_list[idx] + '.npy', allow_pickle=True)
             print("arr shape is %d" % target_arr.shape)
             sheet = workbook.add_sheet(sheet_name + id_list[idx])
             sheet.write(0, 0, 'test id')

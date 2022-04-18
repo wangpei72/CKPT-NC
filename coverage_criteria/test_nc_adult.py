@@ -74,7 +74,7 @@ def model_load(datasets):
 
     saver = tf.train.Saver()
 
-    model_path = '../mod/' + datasets + '/test.model'
+    model_path = '../mod/' + datasets + '/start-all-over-model/adult/999/test.model'
 
     saver.restore(sess, model_path)
 
@@ -98,7 +98,7 @@ def neuron_coverage(idx_in_range20,
 
     n_batches = 10
     X_train_boundary = tuple_res[0]
-    store_path = "../coverage-result/dnn5/adult/"
+    store_path = "../coverage-result/dnn5/rw-adult/"
 
     for i in range(n_batches):
         print(i)
@@ -130,11 +130,11 @@ def main(argv=None):
                                  ))
             idx_in_range_20 += 1
         nc_to_save = np.array(nc_to_save, dtype=np.float64)
-        np.save('../adult-res-nc/20_tests_0' + str(id_list_cnt + 1) + '.npy', nc_to_save)
+        np.save('../adult-res-nc/rw-20_tests_0' + str(id_list_cnt + 1) + '.npy', nc_to_save)
         id_list_cnt += 1
     id_list_cnt = 0
     while id_list_cnt < 5:
-        wrt_xls.wrt_xls_file('adult_neuron_coverage.xls', 'neuron_coverage', 'neuron coverage', id_list_cnt=id_list_cnt)
+        wrt_xls.wrt_xls_file('rw_adult_neuron_coverage.xls', 'neuron_coverage', 'neuron coverage', id_list_cnt=id_list_cnt)
         id_list_cnt += 1
 
 
